@@ -1,0 +1,6 @@
+title: "OTIMIZAR_W11"
+summary: "Scripts PowerShell que diagnosticam, fazem backup, limpam, reparam e otimizam um Windows 10/11 de forma reversível, com modo de simulação."
+category: automation
+approach: "Etapas numeradas com ajustes declarados em um arquivo de configuração, modo de simulação (WhatIf) e estado salvo para reverter tudo ou um ajuste isolado."
+stack: [PowerShell]
+status: completed
