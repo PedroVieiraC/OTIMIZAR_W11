@@ -4,3 +4,4 @@ category: automation
 approach: "Etapas numeradas com ajustes declarados em um arquivo de configuração, modo de simulação (WhatIf) e estado salvo para reverter tudo ou um ajuste isolado."
 stack: [PowerShell]
 status: completed
+# top: 1 a 5 (posição no Top 5 do portfólio; sem valor, fora do Top 5)
