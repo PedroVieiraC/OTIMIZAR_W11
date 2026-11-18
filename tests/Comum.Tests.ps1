@@ -11,6 +11,14 @@ function Assert-True($cond, $nome) {
 }
 function Lanca($sb) { try { & $sb; $false } catch { $true } }
 
+Assert-True (Lanca { Assert-NotProtectedPath 'C:\' }) 'raiz C:\ lanca'
+Assert-True (Lanca { Assert-NotProtectedPath 'C:\Windows' }) 'Windows lanca'
+Assert-True (Lanca { Assert-NotProtectedPath 'c:\windows\' }) 'Windows (minusculas, barra final) lanca'
+Assert-True (Lanca { Assert-NotProtectedPath 'C:\Program Files\*' }) 'curinga direto em Program Files lanca'
+Assert-True (-not (Lanca { Assert-NotProtectedPath 'C:\Windows\Temp' })) 'Windows\Temp passa'
+Assert-True (-not (Lanca { Assert-NotProtectedPath 'C:\Windows\Temp\*' })) 'curinga em Windows\Temp passa'
+Assert-True (-not (Lanca { Assert-NotProtectedPath 'C:\Program Files\AlgumApp\cache.txt' })) 'arquivo em Program Files passa'
+
 $tmp = Join-Path $env:TEMP ('otimizar-test-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tmp | Out-Null
 try {

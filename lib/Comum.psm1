@@ -4,6 +4,23 @@
 $script:Raiz = Split-Path $PSScriptRoot -Parent
 $script:CaminhoEstado = Join-Path $script:Raiz 'estado\estado.json'
 
+# Raízes do sistema: o item em si nunca é apagado, nem "tudo dentro dele" (curinga direto na raiz).
+# Subpastas e arquivos dentro delas podem ser apagados (ex.: Windows\Temp).
+$script:Raizes = @('C:', 'C:\Windows', 'C:\Windows\System32', 'C:\Program Files', 'C:\Program Files (x86)', 'C:\ProgramData', 'C:\Users')
+
+function Assert-NotProtectedPath {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$Path)
+    $p = [IO.Path]::GetFullPath(($Path -replace '[*?]', '_')).TrimEnd('\')   # GetFullPath não aceita curingas
+    $c = [StringComparison]::OrdinalIgnoreCase
+    $pai = Split-Path $p -Parent
+    if ($pai) { $pai = $pai.TrimEnd('\') }
+    foreach ($r in $script:Raizes) {
+        $esvaziaRaiz = ($Path -match '[*?]') -and $pai -and $pai.Equals($r, $c) -and ((Split-Path $Path -Leaf) -match '^[*?]+$')
+        if ($p.Equals($r, $c) -or $esvaziaRaiz) { throw "Caminho protegido: $Path" }
+    }
+}
+
 function Assert-Admin {
     [CmdletBinding()]
     param([switch]$Simulacao)
@@ -70,6 +87,7 @@ function Remove-SafeItem {
         [int]$OlderThanDays = 0,
         [switch]$Recurse
     )
+    Assert-NotProtectedPath $Path
     $corte = (Get-Date).AddDays(-$OlderThanDays)
     $r = [pscustomobject]@{ Removidos = 0; Ignorados = 0; Bytes = [int64]0; Simulados = 0; BytesSim = [int64]0 }
     $dirs = New-Object Collections.Generic.List[string]
@@ -105,4 +123,4 @@ function Remove-SafeItem {
     $r
 }
 
-Export-ModuleMember -Function Assert-Admin, Write-Log, Set-StatePath, Get-State, Save-State, Get-FreeSpaceGB, Remove-SafeItem
+Export-ModuleMember -Function Assert-Admin, Assert-NotProtectedPath, Write-Log, Set-StatePath, Get-State, Save-State, Get-FreeSpaceGB, Remove-SafeItem
